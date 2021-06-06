@@ -1,13 +1,16 @@
 package br.com.pip.forum.dto;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
 
 import br.com.pip.forum.modelo.Topico;
 
-public class TopicoDTO {
+public class TopicoDTO implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
 	private String titulo;
 	private String mensagem;
@@ -33,8 +36,8 @@ public class TopicoDTO {
 		return dataCriacao;
 	}
 
-	public static List<TopicoDTO> converter(List<Topico> topicos) {
-		return topicos.stream().map(TopicoDTO::new).collect(Collectors.toList());
+	public static Page<TopicoDTO> converter(Page<Topico> page) {
+		return page.map(TopicoDTO::new);
 	}
 	
 	

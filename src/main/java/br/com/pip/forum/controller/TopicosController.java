@@ -1,12 +1,17 @@
 package br.com.pip.forum.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,21 +41,35 @@ public class TopicosController {
 	
 	@Autowired
 	private CursoRepository cursoRepository;
-	
+
 	@GetMapping
-	public List<TopicoDTO> lista(String nomeCurso) {  // nomeCurso já recebe o parâmetro do GET
-		List<Topico> topicos;
+	@Cacheable("listaDeTopicos")  // Requer o @EnableCaching na classe da aplicação
+	
+	// Existe o provedor de cache que usa o Redis :)
+	// O cache foi usado aqui de forma didática, mas o ideal é usar em tabelas que não sofrem atualizações
+	// frequentes. Se tiver que ficar invalidando a todo momento, pode até piorar o desempenho.
+	
+	// Page devolve dados de paginação no JSON de resposta
+	// Por default o Spring recebe os parâmetros do GET
+	// O Pageable é devido ao @EnableSpringDataWebSupport na classe da aplicação
+	// (page=XXX&size=YYY&sort=ZZZ,asc&sort=KKK,desc)
+	public Page<TopicoDTO> lista(
+			String nomeCurso, 
+			@PageableDefault(page = 0, size = 20, sort = "id", direction = Direction.DESC) Pageable paginacao) {
+		Page<Topico> page;
+		
 		if (nomeCurso == null) {
-			topicos = topicoRepository.findAll();
+			page = topicoRepository.findAll(paginacao);
 		}
 		else {
-			topicos = topicoRepository.findByCursoNome(nomeCurso);
+			page = topicoRepository.findByCursoNome(nomeCurso, paginacao);
 		}
-		return TopicoDTO.converter(topicos);
+		return TopicoDTO.converter(page);
 	}
 	
 	@PostMapping
 	@Transactional
+	@CacheEvict(value = "listaDeTopicos", allEntries = true)  // invalida o cache
 	// ResponseEntity: devolve o objeto, porém controlando a resposta HTTP
 	// @RequestBody: avisa que o parâmetro vem no corpo
 	// @Valid: chama o Bean Validation
@@ -80,6 +99,7 @@ public class TopicosController {
 	// No geral se usa o PUT, não fazendo a distinção
 	@PutMapping("/{id}")
 	@Transactional
+	@CacheEvict(value = "listaDeTopicos", allEntries = true)
 	public ResponseEntity<TopicoDTO> atualizar(
 			@PathVariable Long id, 
 			@RequestBody @Valid AtualizacaoTopicoForm form) {
@@ -98,6 +118,7 @@ public class TopicosController {
 	}
 	
 	@DeleteMapping("/{id}")
+	@CacheEvict(value = "listaDeTopicos", allEntries = true)
 	public ResponseEntity<?> remover(@PathVariable Long id) {
 		Optional<Topico> optTopico = topicoRepository.findById(id);
 		
