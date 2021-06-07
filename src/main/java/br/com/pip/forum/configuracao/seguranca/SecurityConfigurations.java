@@ -73,6 +73,9 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	// Recursos estáticos (hmmmmmm, interessante...)
 	@Override
 	public void configure(WebSecurity web) throws Exception {
+		// Habilitando o swagger
+		web.ignoring().antMatchers("/**.html", "/v2/api-docs", "/webjars/**", "/configuration/**",
+				"/swagger-resources/**");
 	}
 	
 }

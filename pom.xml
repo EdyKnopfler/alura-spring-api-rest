@@ -79,7 +79,7 @@
 
 		<!-- Configurações do Actuator no application.properties -->
 		<!-- Paths: /actuator /actuator/info /actuator/health /actuator/health/<componente> 
-			(listagem completa no anterior -->
+			(listagem completa no anterior) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -90,6 +90,19 @@
 			<groupId>de.codecentric</groupId>
 			<artifactId>spring-boot-admin-starter-client</artifactId>
 			<version>2.4.1</version>
+		</dependency>
+
+		<!-- Integração com Swagger (documentação) 
+		     A versão mais recente (3.0.0) falhou -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.9.2</version>
 		</dependency>
 	</dependencies>
 
