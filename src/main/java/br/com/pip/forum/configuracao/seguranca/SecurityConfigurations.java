@@ -3,6 +3,7 @@ package br.com.pip.forum.configuracao.seguranca;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,6 +19,7 @@ import br.com.pip.forum.repositorio.UsuarioRepository;
 
 @EnableWebSecurity
 @Configuration
+@Profile({"test", "prod"})  // Esta é para o ambiente de produção; também tem que rodar o teste
 public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
@@ -52,6 +54,9 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/topicos").permitAll()
 				.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
 				.antMatchers(HttpMethod.POST, "/auth").permitAll()
+				// Na tabela deve ser ROLE_MODERADOR e ROLE_SYSADMIN
+				.antMatchers(HttpMethod.DELETE, "/topicos/*").hasRole("MODERADOR")
+				.antMatchers("/actuator/**").hasRole("SYSADMIN")
 				.anyRequest().authenticated()
 				
 			// Usanmos JWT (ver pom.xml) e não Session para não ferir o modelo REST.

@@ -3,6 +3,7 @@ package br.com.pip.forum.controller;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import br.com.pip.forum.formulario.LoginForm;
 
 @RestController
 @RequestMapping("/auth")
+@Profile({"test", "prod"})  // Esta é para o ambiente de produção; precisa rodar o teste dela
 public class AutenticacaoController {
 	
 	@Autowired  // Necessário habilitar a injeção em SecurityConfigurations.java
@@ -42,7 +44,6 @@ public class AutenticacaoController {
 			return ResponseEntity.ok(new TokenDTO(token, "Bearer"));
 		}
 		catch (AuthenticationException e) {
-			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}
